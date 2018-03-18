@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+
+from os import popen, system  # for interaction with the shell
+
+# because pip behavior has changed from version 9 on, this conditional
+# is created to check pip version and handle distinctions
+
+if system("pip --version | cut -d' ' -f2") < 9:
+    with popen("pip list --outdated | cut -d' ' -f1") as f:
+        system(f"pip install {' '.join([name.strip()for name in f])}")
+else:
+    with popen("pip list --format=columns --outdated | tail -n +3 | cut -d' ' -f1") as f:
+        system(f"pip install {' '.join([name.strip()for name in f])}")
+
+# uses context manager on "popen" to pipe script that executes "pip list --outdated"
+# with flags for columns format, pipes results to "tail" in order to print starting
+# from row 3, those results are then piped to "cut" to get column one in a space
+# delimited output. Object saved as "f".
+
+# list comprehension used on f to get all package names without newline character.
+# join used with space to create a string of all package names.
+# system call made from f-string containing string of all package names.
